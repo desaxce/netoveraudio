@@ -9,12 +9,12 @@ import javax.sound.sampled.SourceDataLine;
 import jnt.FFT.RealDoubleFFT_Radix2;
 
 public class sendFile {
-	public static void main(String[] args) throws LineUnavailableException,
-			InterruptedException {
-		AudioFormat fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-				(float) 48000, 8, 1, 1, (float) 48000, false);
-		SourceDataLine out = (SourceDataLine) AudioSystem
-				.getLine(new DataLine.Info(SourceDataLine.class, fmt));
+
+	public static void main(String[] args) throws LineUnavailableException, InterruptedException {
+
+		AudioFormat fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, (float) 48000, 8, 1, 1, (float) 48000, false);
+		SourceDataLine out = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, fmt));
+
 		out.open(fmt);
 		out.start();
 
