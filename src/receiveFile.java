@@ -22,19 +22,24 @@ public class receiveFile {
 
         in.open(fmt);
         in.start();
-        int taille = 131072 ;
+        // int taille = 131072 ;
+		int taille = 2048;
 
         byte[] array = new byte[taille];
         while (true) {
             in.read(array, 0, array.length);
-            int nbOctets = 26;
-            int nbfr = 8 * nbOctets;
-            int i0 = 400;
-            int stride = 26;
-            BitSet set = new BitSet(nbfr);
+			int nbOctets = 1;
+			int numberOfFrequencies = 8; // 32 et 26
+			int i0 = 80;
+			int stride = 26;
+            //int nbOctets = 26;
+            //int numberOfFrequencies = 8 * nbOctets;
+            //int i0 = 400;
+            //int stride = 26;
+            BitSet set = new BitSet(numberOfFrequencies);
+            RealDoubleFFT_Radix2 calculus = new RealDoubleFFT_Radix2(taille);
 
             double[] arrayClone = new double[array.length];
-            RealDoubleFFT_Radix2 calculus = new RealDoubleFFT_Radix2(taille);
             double maximum = arrayClone[0];
             double minimum = arrayClone[0];
 
@@ -62,14 +67,13 @@ public class receiveFile {
 
             calculus.transform(arrayClone);
 
-            double[] coeff = new double[nbfr];
-            for (int i = 0; i < nbfr; i++) {
-                coeff[i] = module(arrayClone, (i0 + stride * i) * taille
-                                  / 48000);
+            double[] coeff = new double[numberOfFrequencies];
+            for (int i = 0; i < numberOfFrequencies; i++) {
+                coeff[i] = module(arrayClone, (i0 + stride * i) * taille / 48000);
             }
 
             double maximum2 = coeff[0];
-            for (int i = 0; i < nbfr; i++) {
+            for (int i = 0; i < numberOfFrequencies; i++) {
                 if (coeff[i] > maximum2) {
                     maximum2 = coeff[i];
                 }
@@ -78,22 +82,24 @@ public class receiveFile {
              * System.out.println(maximum2); System.out.println();
              */
 
-            if (maximum2 > 2E6) {
-                for (int i = 0; i < nbfr; i++) {
+            if (maximum2 > 2E7) { // This threshold is here to indicate that there is really something to be listening to.
+                for (int i = 0; i < numberOfFrequencies; i++) {
                     if (coeff[i] > maximum2 / 4) {
                         set.set(i);
+						System.out.print("true ");
                     }
+					else {
+						System.out.print("false ");
+					}
                 }
-
-
+				System.out.println();
 
                 /*
-                 * for (int i = 0; i < nbfr; i++) { System.out.print(set.get(i)
+                 * for (int i = 0; i < numberOfFrequencies; i++) { System.out.print(set.get(i)
                  * + " "); } System.out.println();
                  */
 
-
-                for (int j = 0; j < nbOctets; j++) {
+                /*for (int j = 0; j < nbOctets; j++) {
                     byte b = 0;
                     for (int i =(int) (8 * j); i < (int) (8 * (j + 1)); i++) {
                         if (set.get(i)) {
@@ -101,7 +107,7 @@ public class receiveFile {
                         }
                     }
                     System.out.print((char) b);
-                }
+                }*/
 
             }
 

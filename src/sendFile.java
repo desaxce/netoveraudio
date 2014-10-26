@@ -18,32 +18,35 @@ public class sendFile {
 		out.open(fmt);
 		out.start();
 
+		int numberOfFrequencies = 8; // 32 et 26
 		int taille = 2048;
-		byte[] mess = new byte[taille];
-		int nbFr = 8;// 32 et 26
 		int i0 = 80;
 		int stride = 26;
-		BitSet set = new BitSet(nbFr);
-		
-		//for (int i = 0; i < nbFr / 2; i++) { set.set(2 * i); }
-		set.set(2);
-		
-		double[] buffer = new double[taille];
-		double maximum = buffer[0];
-		double minimum = buffer[0];
 
-		for (int i = 0; i < nbFr; i++) {
+		byte[] mess = new byte[taille];
+		double[] buffer = new double[taille];
+		BitSet set = new BitSet(numberOfFrequencies);
+		RealDoubleFFT_Radix2 calculus = new RealDoubleFFT_Radix2(taille);
+		
+		for (int i = 0; i < numberOfFrequencies / 2; i++) {
+			set.set(2 * i); // setting all the even frequencies --> is it a cosine ?
+		}
+		//set.set(2);
+		
+
+		for (int i = 0; i < numberOfFrequencies; i++) {
 			if (set.get(i)) {
-				buffer[(i0 + stride*i)* taille / 48000] = i;
+				buffer[(i0 + stride*i)* taille / 48000] = i; // If frequency #i is set, then add it.
 			} else {
 				buffer[i] = 0.0;
 			}
 
 		}
 
-		RealDoubleFFT_Radix2 calculus = new RealDoubleFFT_Radix2(taille);
-		calculus.backtransform(buffer);
-		
+		calculus.backtransform(buffer); // Inverse transform the buffer array
+	
+		// TODO: Replace this loop to find the minimum with library functions MIN/MAX
+		double maximum = buffer[0], minimum = buffer[0];
 		for (int i = 0; i < taille; i++) {
 			if (maximum < buffer[i]) {
 				maximum = buffer[i];
@@ -52,38 +55,41 @@ public class sendFile {
 				minimum = buffer[i];
 			}
 		}
+
+		// TODO: Replace these hard values 127 and 254 by const int.
+		// I think this loop is to scale/regularize the buffer array to get something centered on 127 and varying between 0 and 255.
 		for (int i = 0; i < taille; i++) {
-			mess[i] = (byte) (127 + 254 * (buffer[i] - maximum)
-					/ (maximum - minimum));
+			mess[i] = (byte) (127 + 254 * (buffer[i] - maximum) / (maximum - minimum));
 			//System.out.print(mess[i] + " ");
 		}
 		
-		
-
+/*
+		// TODO: Remove this below to avoid having to clone this array --> not pretty
+		// I think the part below is just here to check that internally what is send is really what is send (meaning the receiver should receive the same thing)
 		double[] messClone = new double[taille];
-		for (int i = 0; i<taille; i++) {
-			messClone[i]=(double) mess[i];
+		for (int i = 0; i < taille; i++) {
+			messClone[i] = (double) mess[i];
 		}
-		
-		
+	
+		// Compute FFT of messClone
 		calculus.transform(messClone);
 
-		double[] coeff = new double[nbFr];
-		for (int i = 0; i < nbFr; i++) {
+		double[] coeff = new double[numberOfFrequencies];
+		for (int i = 0; i < numberOfFrequencies; i++) {
 			coeff[i] = module(messClone, (i0 + stride * i) * taille / 48000);
 		}
 
-		
 		double maximum2 = coeff[0];
-		for (int i = 0; i < nbFr; i++) {
+		for (int i = 0; i < numberOfFrequencies; i++) {
 			if (coeff[i] > maximum2) {
 				maximum2 = coeff[i];
 			}
 		}
 		System.out.println(maximum2);
 
+		// The hard value below should be removed.
 		if (maximum2 > 2000000) {
-			for (int i = 0; i < nbFr; i++) {
+			for (int i = 0; i < numberOfFrequencies; i++) {
 				if (coeff[i] > maximum2 / 4) {
 					set.set(i);
 				}
@@ -92,25 +98,25 @@ public class sendFile {
 		}
 
 		if (!set.isEmpty()) {
-			for (int i = 0; i < nbFr; i++) {
+			for (int i = 0; i < numberOfFrequencies; i++) {
 				System.out.print(set.get(i) + " ");
 			}
 			System.out.println();
 		}
-
+*/
 		
-		while (true) { out.write(mess, 0, mess.length); 
-		
-		
-		//Thread.sleep(1000);
+		while (true) {
+			// Creates the real sound
+			out.write(mess, 0, mess.length); 
+			Thread.sleep(1000);
 		}
-		
-
 	}
 
+	// Computes square norm of (x, y)
 	private static double module(double[] buffer, int i) {
 		double x = buffer[i];
 		double y = buffer[buffer.length - i];
 		return x * x + y * y;
 	}
+
 }
