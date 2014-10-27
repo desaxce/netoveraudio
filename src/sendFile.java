@@ -20,7 +20,7 @@ public class sendFile {
 
 		int numberOfFrequencies = 8; // 32 et 26
 		int taille = 2048;
-		int i0 = 400;
+		int i0 = 1000;
 		int stride = 26;
 
 		byte[] mess = new byte[taille];

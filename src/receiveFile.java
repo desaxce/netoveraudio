@@ -10,6 +10,8 @@ import javax.sound.sampled.TargetDataLine;
 
 import jnt.FFT.RealDoubleFFT_Radix2;
 // VERY IMPORTANT: You should not set the volume of sending to high or else you are going to have some troubles
+// When the jack cable is on the communications work at low frequency without any problem. But if we go "over the air" it only works for the two highest frequency: does it mean that there is too much "low frequency noise" to ensure that the microphone hears the low frequencies ??
+// I just checked and it seems indeed that the low frequency are not good over the air : better work automatically with i0 >= 1000
 // TODO: Make a check before real transmission to ensure that the volume of the communication is not set to high
 public class receiveFile {
 
@@ -31,7 +33,7 @@ public class receiveFile {
             in.read(array, 0, array.length);
 			int nbOctets = 1;
 			int numberOfFrequencies = 8; // 32 et 26
-			int i0 = 400;
+			int i0 = 1000;
 			int stride = 26;
             //int nbOctets = 26;
             //int numberOfFrequencies = 8 * nbOctets;
