@@ -20,7 +20,7 @@ public class sendFile {
 
 		int numberOfFrequencies = 8; // 32 et 26
 		int taille = 2048;
-		int i0 = 80;
+		int i0 = 400;
 		int stride = 26;
 
 		byte[] mess = new byte[taille];
@@ -31,12 +31,17 @@ public class sendFile {
 		for (int i = 0; i < numberOfFrequencies / 2; i++) {
 			set.set(2 * i); // setting all the even frequencies --> is it a cosine ?
 		}
+		for (int i = 0; i < numberOfFrequencies ; i++) {
+			System.out.print(set.get(i)+" ");
+		}
+		//set.set(1);
 		//set.set(2);
 		
 
 		for (int i = 0; i < numberOfFrequencies; i++) {
+			// There was a problem here because if i==0, then you forgot to count the first frequency! (thats why I put i+1 instead of i)
 			if (set.get(i)) {
-				buffer[(i0 + stride*i)* taille / 48000] = i; // If frequency #i is set, then add it.
+				buffer[(i0 + stride*i)* taille / 48000] = (i+1); // If frequency #i is set, then add it.
 			} else {
 				buffer[i] = 0.0;
 			}
@@ -63,7 +68,7 @@ public class sendFile {
 			//System.out.print(mess[i] + " ");
 		}
 		
-/*
+
 		// TODO: Remove this below to avoid having to clone this array --> not pretty
 		// I think the part below is just here to check that internally what is send is really what is send (meaning the receiver should receive the same thing)
 		double[] messClone = new double[taille];
@@ -76,7 +81,7 @@ public class sendFile {
 
 		double[] coeff = new double[numberOfFrequencies];
 		for (int i = 0; i < numberOfFrequencies; i++) {
-			coeff[i] = module(messClone, (i0 + stride * i) * taille / 48000);
+			coeff[i] = module(messClone, (i0 + stride * (i+1)) * taille / 48000);
 		}
 
 		double maximum2 = coeff[0];
@@ -85,13 +90,14 @@ public class sendFile {
 				maximum2 = coeff[i];
 			}
 		}
-		System.out.println(maximum2);
 
+		BitSet nset = new BitSet(numberOfFrequencies);
 		// The hard value below should be removed.
 		if (maximum2 > 2000000) {
+			System.out.println(maximum2);System.out.println();
 			for (int i = 0; i < numberOfFrequencies; i++) {
-				if (coeff[i] > maximum2 / 4) {
-					set.set(i);
+				if (coeff[i] > maximum2 / 100) {
+					nset.set(i);
 				}
 			}
 			System.out.println();
@@ -99,16 +105,16 @@ public class sendFile {
 
 		if (!set.isEmpty()) {
 			for (int i = 0; i < numberOfFrequencies; i++) {
-				System.out.print(set.get(i) + " ");
+				System.out.print(nset.get(i) + " ");
 			}
 			System.out.println();
 		}
-*/
+
 		
 		while (true) {
 			// Creates the real sound
 			out.write(mess, 0, mess.length); 
-			Thread.sleep(1000);
+			//Thread.sleep(1000);
 		}
 	}
 

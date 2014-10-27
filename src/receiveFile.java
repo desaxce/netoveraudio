@@ -9,7 +9,8 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
 import jnt.FFT.RealDoubleFFT_Radix2;
-
+// VERY IMPORTANT: You should not set the volume of sending to high or else you are going to have some troubles
+// TODO: Make a check before real transmission to ensure that the volume of the communication is not set to high
 public class receiveFile {
 
     public static void main(String[] args) throws LineUnavailableException, InterruptedException {
@@ -30,13 +31,12 @@ public class receiveFile {
             in.read(array, 0, array.length);
 			int nbOctets = 1;
 			int numberOfFrequencies = 8; // 32 et 26
-			int i0 = 80;
+			int i0 = 400;
 			int stride = 26;
             //int nbOctets = 26;
             //int numberOfFrequencies = 8 * nbOctets;
             //int i0 = 400;
             //int stride = 26;
-            BitSet set = new BitSet(numberOfFrequencies);
             RealDoubleFFT_Radix2 calculus = new RealDoubleFFT_Radix2(taille);
 
             double[] arrayClone = new double[array.length];
@@ -69,7 +69,8 @@ public class receiveFile {
 
             double[] coeff = new double[numberOfFrequencies];
             for (int i = 0; i < numberOfFrequencies; i++) {
-                coeff[i] = module(arrayClone, (i0 + stride * i) * taille / 48000);
+				// The i+1 is due to the fact that we cannot afford to have the bit number 0 to count for nothing (see sendFile.java)
+                coeff[i] = module(arrayClone, (i0 + stride * (i+1)) * taille / 48000);
             }
 
             double maximum2 = coeff[0];
@@ -78,21 +79,26 @@ public class receiveFile {
                     maximum2 = coeff[i];
                 }
             }
-            /*
-             * System.out.println(maximum2); System.out.println();
-             */
+            
+           
 
-            if (maximum2 > 2E7) { // This threshold is here to indicate that there is really something to be listening to.
+            BitSet set = new BitSet(numberOfFrequencies);
+            if (maximum2 > 2E6) { // This threshold is here to indicate that there is really something to be listening to.
+				System.out.println(maximum2); System.out.println();
                 for (int i = 0; i < numberOfFrequencies; i++) {
-                    if (coeff[i] > maximum2 / 4) {
+					System.out.print(coeff[i]+" ");
+                    if (coeff[i] > maximum2 / 100) {
                         set.set(i);
-						System.out.print("true ");
                     }
-					else {
-						System.out.print("false ");
-					}
                 }
 				System.out.println();
+
+				if (!set.isEmpty()) {
+					for (int i = 0; i < numberOfFrequencies; i++) {
+						System.out.print(set.get(i) + " ");
+					}
+					System.out.println();
+				}
 
                 /*
                  * for (int i = 0; i < numberOfFrequencies; i++) { System.out.print(set.get(i)
