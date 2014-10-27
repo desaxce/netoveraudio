@@ -12,7 +12,9 @@ import jnt.FFT.RealDoubleFFT_Radix2;
 // VERY IMPORTANT: You should not set the volume of sending to high or else you are going to have some troubles
 // When the jack cable is on the communications work at low frequency without any problem. But if we go "over the air" it only works for the two highest frequency: does it mean that there is too much "low frequency noise" to ensure that the microphone hears the low frequencies ??
 // I just checked and it seems indeed that the low frequency are not good over the air : better work automatically with i0 >= 1000
-// TODO: Make a check before real transmission to ensure that the volume of the communication is not set to high
+// TODO: Make a check before real transmission to ensure that the volume of the communication is not set to high.
+// TODO: Add a mode that takes advantage of the stereo (2 channels): this should lead to twice the throughput.
+// TODO: Try to see how we can send several consecutive frames: indeed right now if we want to send a message, we have to loop it...
 public class receiveFile {
 
     public static void main(String[] args) throws LineUnavailableException, InterruptedException {
