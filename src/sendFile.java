@@ -41,7 +41,7 @@ public class sendFile {
 		for (int i = 0; i < numberOfFrequencies; i++) {
 			// There was a problem here because if i==0, then you forgot to count the first frequency! (thats why I put i+1 instead of i)
 			if (set.get(i)) {
-				buffer[(i0 + stride*i)* taille / 48000] = (i+1); // If frequency #i is set, then add it.
+				buffer[(i0 + stride*(i+1))* taille / 48000] = (i+1); // If frequency #i is set, then add it.
 			} else {
 				buffer[i] = 0.0;
 			}
