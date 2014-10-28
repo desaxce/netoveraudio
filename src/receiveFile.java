@@ -27,14 +27,14 @@ public class receiveFile {
 
         in.open(fmt);
         in.start();
-        // int taille = 131072 ;
-		int taille = 2048;
+        int taille = 131072 ;
+		//int taille = 4096;
 
         byte[] array = new byte[taille];
         while (true) {
             in.read(array, 0, array.length);
-			int nbOctets = 1;
-			int numberOfFrequencies = 8; // 32 et 26
+			int nbOctets = 2;
+			int numberOfFrequencies = 8*nbOctets; // 32 et 26
 			int i0 = 1000;
 			int stride = 26;
             //int nbOctets = 26;
@@ -88,36 +88,37 @@ public class receiveFile {
 
             BitSet set = new BitSet(numberOfFrequencies);
             if (maximum2 > 2E6) { // This threshold is here to indicate that there is really something to be listening to.
-				System.out.println(maximum2); System.out.println();
+				System.out.print(maximum2 + " ");
                 for (int i = 0; i < numberOfFrequencies; i++) {
-					System.out.print(coeff[i]+" ");
+					//System.out.print(coeff[i]+" ");
                     if (coeff[i] > maximum2 / 100) {
                         set.set(i);
                     }
                 }
-				System.out.println();
+				//System.out.println();
 
-				if (!set.isEmpty()) {
-					for (int i = 0; i < numberOfFrequencies; i++) {
-						System.out.print(set.get(i) + " ");
-					}
-					System.out.println();
-				}
+				//if (!set.isEmpty()) {
+				//	for (int i = 0; i < numberOfFrequencies; i++) {
+				//		System.out.print(set.get(i) + " ");
+				//	}
+				//	System.out.println();
+				//}
 
                 /*
                  * for (int i = 0; i < numberOfFrequencies; i++) { System.out.print(set.get(i)
                  * + " "); } System.out.println();
                  */
 
-                /*for (int j = 0; j < nbOctets; j++) {
+                for (int j = 0; j < nbOctets; j++) {
                     byte b = 0;
                     for (int i =(int) (8 * j); i < (int) (8 * (j + 1)); i++) {
                         if (set.get(i)) {
                             b += (byte) Math.pow(2, (double) i - 8 * (i / 8));
                         }
                     }
-                    System.out.print((char) b);
-                }*/
+                    System.out.print((char) b+ " ");
+                }
+				System.out.println();
 
             }
 

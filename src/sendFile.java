@@ -17,9 +17,9 @@ public class sendFile {
 
 		out.open(fmt);
 		out.start();
-
-		int numberOfFrequencies = 8; // 32 et 26
-		int taille = 2048;
+		
+		int numberOfFrequencies = 16; // 32 et 26
+		int taille = 131072;
 		int i0 = 1000;
 		int stride = 26;
 
@@ -28,14 +28,23 @@ public class sendFile {
 		BitSet set = new BitSet(numberOfFrequencies);
 		RealDoubleFFT_Radix2 calculus = new RealDoubleFFT_Radix2(taille);
 		
-		for (int i = 0; i < numberOfFrequencies / 2; i++) {
-			set.set(2 * i); // setting all the even frequencies --> is it a cosine ?
+		//for (int i = 0; i < numberOfFrequencies / 2; i++) {
+		//	set.set(2 * i); // setting all the even frequencies --> is it a cosine ?
+		//}
+		set.set(0);
+		set.set(6);
+		set.set(9);
+		set.set(14);
+		for (int i = numberOfFrequencies-1; i > -1; i--) {
+			if (set.get(i)) {
+				System.out.print("1");
+			}
+			else {
+				System.out.print("0");
+			}
+			if (i%8==0)
+				System.out.print(" ");
 		}
-		for (int i = 0; i < numberOfFrequencies ; i++) {
-			System.out.print(set.get(i)+" ");
-		}
-		//set.set(1);
-		//set.set(2);
 		
 
 		for (int i = 0; i < numberOfFrequencies; i++) {
@@ -104,10 +113,16 @@ public class sendFile {
 		}
 
 		if (!set.isEmpty()) {
-			for (int i = 0; i < numberOfFrequencies; i++) {
-				System.out.print(nset.get(i) + " ");
+			for (int i = numberOfFrequencies-1; i > -1; i--) {
+				if (nset.get(i)) {
+					System.out.print("1");
+				}
+				else {
+					System.out.print("0");
+				}
+				if (i%8==0)
+					System.out.print(" ");
 			}
-			System.out.println();
 		}
 
 		
