@@ -6,11 +6,16 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import java.util.Scanner;
 import jnt.FFT.RealDoubleFFT_Radix2;
 
 public class sendFile {
 
 	public static void main(String[] args) throws LineUnavailableException, InterruptedException {
+
+		Scanner sc = new Scanner(System.in);
+		String myFavoriteMessage = sc.nextLine();
+
 
 		AudioFormat fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, (float) 48000, 8, 1, 1, (float) 48000, false);
 		SourceDataLine out = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, fmt));
@@ -31,10 +36,24 @@ public class sendFile {
 		//for (int i = 0; i < numberOfFrequencies / 2; i++) {
 		//	set.set(2 * i); // setting all the even frequencies --> is it a cosine ?
 		//}
-		set.set(0);
-		set.set(6);
-		set.set(9);
-		set.set(14);
+
+		int j = 0;
+		for (int i = 0; i < myFavoriteMessage.length(); i++) {
+			char c = myFavoriteMessage.charAt(i);
+			for (int k = 0; k < 8; k++) {
+				int mod = c%2;
+				if (mod == 1) {
+					set.set(j);
+				}
+				c /= 2;
+				j++;
+			}
+		}
+
+		// set.set(0);
+		// set.set(6);
+		// set.set(9);
+		// set.set(14);
 		for (int i = numberOfFrequencies-1; i > -1; i--) {
 			if (set.get(i)) {
 				System.out.print("1");
